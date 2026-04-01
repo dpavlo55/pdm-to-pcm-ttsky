@@ -1,0 +1,3 @@
+[submodule "src/rtl"]
+	path = src/rtl
+	url = git@github.com:dpavlo55/pdm-to-pcm-rtl.git
