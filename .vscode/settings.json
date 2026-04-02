@@ -1,4 +1,5 @@
 {
+  "systemverilog.includeIndexing": ["src/**/*.{sv,v,svh,vh}"],
   "verilog.linting.linter": "verilator",
   "verilog.formatting.verilogHDL.formatter": "verible-verilog-format"
 }

@@ -1,3 +1,6 @@
 [submodule "src/rtl"]
 	path = src/rtl
 	url = git@github.com:dpavlo55/pdm-to-pcm-rtl.git
+[submodule "tt"]
+	path = tt
+	url = https://github.com/TinyTapeout/tt-support-tools
