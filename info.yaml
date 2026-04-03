@@ -22,6 +22,7 @@ project:
     - "rtl/src/regs.sv"
     - "rtl/src/spi_to_regs_adapter.sv"
     - "rtl/src/spi.sv"
+    - "rtl/src/cic.sv"
     - "rtl/src/pdm_to_pcm_top.sv"
     - "rtl/src/tt_um_top.sv"
 
