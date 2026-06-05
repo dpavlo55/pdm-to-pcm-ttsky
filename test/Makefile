@@ -1,45 +1,48 @@
-# Makefile
-# See https://docs.cocotb.org/en/stable/quickstart.html for more info
-
-# defaults
-SIM ?= icarus
-FST ?= -fst # Use more efficient FST format
+SIM           ?= icarus
 TOPLEVEL_LANG ?= verilog
-SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = project.v
+
+TOPLEVEL = tb
+MODULE   = test
+
+COCOTB_RESULTS_FILE = results.xml
+COCOTB_HDL_TIMEUNIT      = 1ns
+COCOTB_HDL_TIMEPRECISION = 1ps
 
 ifneq ($(GATES),yes)
 
-# RTL simulation:
-SIM_BUILD				= sim_build/rtl
-VERILOG_SOURCES += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
+# RTL simulation
+VERILOG_SOURCES  = $(PWD)/../src/rtl/src/edge_detector.sv
+VERILOG_SOURCES += $(PWD)/../src/rtl/src/regs_defs.svh
+VERILOG_SOURCES += $(PWD)/../src/rtl/src/regs.sv
+VERILOG_SOURCES += $(PWD)/../src/rtl/src/spi_to_regs_adapter.sv
+VERILOG_SOURCES += $(PWD)/../src/rtl/src/spi.sv
+VERILOG_SOURCES += $(PWD)/../src/rtl/src/i2s.sv
+VERILOG_SOURCES += $(PWD)/../src/rtl/src/cic.sv
+VERILOG_SOURCES += $(PWD)/../src/rtl/src/pdm_clk_gen.sv
+VERILOG_SOURCES += $(PWD)/../src/rtl/src/pdm_sampler.sv
+VERILOG_SOURCES += $(PWD)/../src/rtl/src/pdm_to_pcm_top.sv
+VERILOG_SOURCES += $(PWD)/../src/rtl/src/tt_um_top.sv
+VERILOG_SOURCES += $(PWD)/tb.v
+
+COMPILE_ARGS += -g2012
+COMPILE_ARGS += -I$(PWD)/../src/rtl/src
 
 else
 
-# Gate level simulation:
-SIM_BUILD				= sim_build/gl
-COMPILE_ARGS    += -DGL_TEST
-COMPILE_ARGS    += -DFUNCTIONAL
-COMPILE_ARGS    += -DUSE_POWER_PINS
-COMPILE_ARGS    += -DSIM
-COMPILE_ARGS    += -DUNIT_DELAY=\#1
+# Gate-level simulation
+COMPILE_ARGS += -g2012
+COMPILE_ARGS += -DFUNCTIONAL
+COMPILE_ARGS += -DSIM
+COMPILE_ARGS += -DUNIT_DELAY=\#1
+COMPILE_ARGS += -DUSE_POWER_PINS
+
 VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v
 VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
+VERILOG_SOURCES += gate_level_netlist.v
+VERILOG_SOURCES += $(PWD)/tb.v
 
-# this gets copied in by the GDS action workflow
-VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
+export GL_TEST = 1
 
 endif
 
-# Allow sharing configuration between design and testbench via `include`:
-COMPILE_ARGS 		+= -I$(SRC_DIR)
-
-# Include the testbench sources:
-VERILOG_SOURCES += $(PWD)/tb.v
-TOPLEVEL = tb
-
-# List test modules to run, separated by commas and without the .py suffix:
-COCOTB_TEST_MODULES = test
-
-# include cocotb's make rules to take care of the simulator setup
 include $(shell cocotb-config --makefiles)/Makefile.sim
