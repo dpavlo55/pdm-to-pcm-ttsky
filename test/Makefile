@@ -4,9 +4,9 @@
 # defaults
 SIM ?= icarus
 FST ?= -fst # Use more efficient FST format
-TOPLEVEL_LANG ?= verilog
-SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = project.v
+TOPLEVEL_LANG ?= systemverilog
+SRC_DIR = $(PWD)/../src/rtl/src
+PROJECT_SOURCES = edge_detector.sv regs_defs.svh regs.sv spi_to_regs_adapter.sv spi.sv i2s.sv cic.sv pdm_clk_gen.sv pdm_sampler.sv pdm_to_pcm_top.sv tt_um_top.sv"
 
 ifneq ($(GATES),yes)
 
