@@ -1,0 +1,8 @@
+{
+  "signal": [
+    { "name": "BCLK",  "wave": "nnnnn|nnnnnn|nnn" },
+    { "name": "LRCLK", "wave": "10...|..1...|..0" },
+    { "name": "SDATA", "wave": "66888|888666|666", "data": ["R1", "R0", "L15", "L14", "L13", "L2", "L1", "L0", "R15", "R14", "R13", "R2", "R1", "R0"] }
+  ],
+  "head": { "text": "I2S format" }
+}

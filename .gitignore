@@ -5,6 +5,7 @@
 *.fst.hier
 *.png
 *.svg
+!docs/wavedrom/*.svg
 runs
 tt_submission
 src/user_config.json

@@ -1,0 +1,9 @@
+{
+  "signal": [
+    { "name": "CS_N", "wave": "10.................1" },
+    { "name": "SCK",  "wave": "lnnnnnnnnlnnnnnnnnl." },
+    { "name": "MOSI", "wave": "x0..10333x55555555x.", "data": ["A2", "A1", "A0", "D7", "D6", "D5", "D4", "D3", "D2", "D1", "D0"] },
+    { "name": "MISO", "wave": "x..................." }
+  ],
+  "head": { "text": "SPI Write Transaction" }
+}

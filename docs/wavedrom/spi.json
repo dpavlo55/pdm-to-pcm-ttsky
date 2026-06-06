@@ -1,0 +1,11 @@
+{
+  "signal": [
+    { "name": "CS_N", "wave": "10................1" },
+    { "name": "SCK",  "wave": "l.HLHLHLHLHLHLHLHL." },
+    { "name": "MOSI", "wave": "x=.=.=.=.=.=.=.=.x.", "data": ["MSB", "6", "5", "4", "3", "2", "1", "LSB"] },
+    { "name": "MISO", "wave": "x=.=.=.=.=.=.=.=.x.", "data": ["MSB", "6", "5", "4", "3", "2", "1", "LSB"] }
+  ],
+  "head": { "text": "SPI Mode 0 \u2014 CPOL=0, CPHA=0" },
+  "foot": { "text": "\u2191 = Rising edge (sample), \u2193 = Falling edge (shift)" },
+  "config": { "hscale": 1 }
+}
