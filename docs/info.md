@@ -90,22 +90,7 @@ The design is packaged as a Tiny Tapeout 1×2 tile. The following tables map log
 
 The signal processing chain flows through four sequential stages:
 
-```mermaid
-flowchart LR
-    A["PDM_DATA\n(1-bit)"] --> B["PDM Sampler\n(pdm_sampler)"]
-    B --> CL["CIC Left\n(N=3, R=32)"]
-    B --> CR["CIC Right\n(N=3, R=32)"]
-    CL --> D["I2S Master\n(i2s)"]
-    CR --> D
-    D --> E["I2S Output\n(BCLK, LRCLK, SDATA)"]
-
-    F["SPI Master\n(external)"] --> G["SPI Slave\n(spi)"]
-    G --> H["SPI-to-Regs\nAdapter"]
-    H --> I["Register File\n(regs)"]
-    I --> J["NCO PDM\nClock Gen"]
-    J --> B
-    J --> D
-```
+![Data flow pipeline](drawio/block_diagram.svg)
 
 **Stage 1 — PDM Interface:** The `pdm_clk_gen` module generates the programmable PDM clock from the 50 MHz system clock using an NCO-based architecture. The `pdm_sampler` module receives the single-bit PDM stream on `pdm_data`. Using the PDM clock edges from `pdm_clk_gen`, it demultiplexes the interleaved stereo data: samples captured on the **rising edge** of `pdm_clk` are assigned to the **left channel**, and samples captured on the **falling edge** are assigned to the **right channel**. Each per-channel output is a 1-bit signal accompanied by a single-cycle valid strobe.
 
@@ -141,7 +126,6 @@ The SPI slave operates in **SPI Mode 0** with the following characteristics:
 **Timing Diagram (CPOL=0, CPHA=0):**
 
 ![SPI Mode 0 timing](wavedrom/spi.svg)
-*[Edit source](wavedrom/spi.json)*
 
 - **MOSI Capture:** On every SCK rising edge, the MOSI bit is shifted into an 8-bit receive shift register.
 - **MISO Drive:** On every SCK falling edge, the MSB of the MISO shift out from the 8-bit transmit register.
@@ -161,7 +145,6 @@ All SPI transactions consist of exactly **2 bytes** (16 SCK cycles).
 2. Master sends Byte 1: `data[7:0]` — the 8-bit value is written to the addressed register.
 
 ![SPI write transaction](wavedrom/spi_write.svg)
-*[Edit source](wavedrom/spi_write.json)*
 
 **Read Transaction**
 
@@ -174,7 +157,6 @@ All SPI transactions consist of exactly **2 bytes** (16 SCK cycles).
 2. Master sends Byte 1: any 8-bit value (don't care). The read data is returned on MISO during Byte 1.
 
 ![SPI read transaction](wavedrom/spi_read.svg)
-*[Edit source](wavedrom/spi_read.json)*
 
 #### 2.3 Timing Constraints
 
@@ -306,21 +288,7 @@ $$
 
 **Module:** `pdm_clk_gen` — **Source:** `src/pdm_clk_gen.sv`
 
-The PDM clock generator uses a Numerically Controlled Oscillator (NCO) architecture to derive a programmable PDM clock frequency from the fixed 50 MHz system clock.
-
-**Architecture:**
-
-```
-      ┌──────────┐     carry      ┌──────────┐
-step →│ 16-bit   │───────────────→│ Toggle   │→ pdm_clk_reg
-      │ Adder    │                │ Flip-Flop│
-      └────┬─────┘                └────┬─────┘
-           │                           │
-      ┌────▼─────┐                ┌────▼─────┐
-      │ acc[15:0]│                │ Edge     │→ pdm_clk_re
-      │ Register │                │ Detector │→ pdm_clk_fe
-      └──────────┘                └──────────┘
-```
+The PDM clock generator uses a Numerically Controlled Oscillator (NCO) architecture to derive a programmable PDM clock frequency from the system clock.
 
 **Key Parameters:**
 
@@ -370,20 +338,9 @@ The CIC (Cascaded Integrator-Comb) filter is a computationally efficient multi-r
 | Output Width | $B_{out}$ | 8 bits |
 | Maximum Accumulator Width | | 16 bits |
 
-**Architecture (Hogenauer structure):**
+**Architecture (with Hogenauer pruning):**
 
-```mermaid
-flowchart LR
-    subgraph "Integrator Section (f_s)"
-        I1["∫\n(16-bit)"] --> I2["∫\n(16-bit)"] --> I3["∫\n(14-bit)"]
-    end
-    I3 --> D["↓R\n(÷32)"]
-    D --> C1
-    subgraph "Comb Section (f_s/R)"
-        C1["(1-z⁻¹)\n(12-bit)"] --> C2["(1-z⁻¹)\n(11-bit)"] --> C3["(1-z⁻¹)\n(10-bit)"]
-    end
-    C3 --> T["Truncate\n→ 8-bit"]
-```
+![CIC decimation filter](drawio/cic.svg)
 
 **Bipolar Mapping:** PDM input `1` maps to `+1`, PDM input `0` maps to `-1`.
 
@@ -414,7 +371,6 @@ The I²S master transmitter formats the 8-bit PCM samples into a standard I²S s
 **I²S Frame Format:**
 
 ![SPI read transaction](wavedrom/i2s.svg)
-*[Edit source](wavedrom/i2s.json)*
 
 The transmitter remains idle (BCLK held low) until the first valid PCM sample arrives, at which point an internal `ready` flag is set and BCLK begins toggling. Due to an initial bit counter offset, the first LRCLK transition occurs after only **1** BCLK cycle; subsequent transitions toggle every **16** BCLK cycles. On each LRCLK boundary, the 8-bit PCM sample for the upcoming channel is loaded into a 16-bit shift register — the 8-bit data occupies the upper byte (bits [15:8]), while the lower byte (bits [7:0]) is zero-padded. The 16 bits are then shifted out MSB-first on every BCLK falling edge.
 
