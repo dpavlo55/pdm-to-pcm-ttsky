@@ -5,8 +5,7 @@
 *.fst.hier
 *.png
 *.svg
-!docs/wavedrom/*.svg
-!docs/drawio/*.svg
+!docs/figures/*.svg
 runs
 tt_submission
 src/user_config.json

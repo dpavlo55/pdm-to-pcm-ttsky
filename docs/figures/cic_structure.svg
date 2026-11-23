@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="470" viewBox="0 0 1040 470">
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#3e4c59"/></marker>
+<marker id="arrow_start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 10 0 L 0 5 L 10 10 z" fill="#3e4c59"/></marker>
+</defs>
+<rect x="0" y="0" width="1040" height="470" fill="#ffffff"/>
+<rect x="30" y="40" width="200" height="86" rx="4" fill="#f6cdbf" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="130.0" y="66.2" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="bold" fill="#1f2933">sequencing</text>
+<text x="130.0" y="80.2" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">slot 0..7: word at the head</text>
+<text x="130.0" y="94.2" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">j 0..31: sample in period</text>
+<text x="130.0" y="108.2" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">phase: age of word 0</text>
+<rect x="30" y="190" width="200" height="58" rx="4" fill="#c9d6e8" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="130.0" y="209.2" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="bold" fill="#1f2933">PDM pair</text>
+<text x="130.0" y="223.2" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">1 bit left, 1 bit right</text>
+<text x="130.0" y="237.2" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">waits for the next rotation</text>
+<rect x="560" y="40" width="230" height="72" rx="4" fill="#efe5c9" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="675.0" y="66.2" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="bold" fill="#1f2933">tap weight table</text>
+<text x="675.0" y="80.2" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">70 x 15 bit, h[k] of the CIC</text>
+<text x="675.0" y="94.2" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">ages 2-3 mirror ages 1-0</text>
+<path d="M 230 76 L 560 76" fill="none" stroke="#3e4c59" stroke-width="1.3" marker-end="url(#arrow)"/>
+<text x="395" y="69" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="middle" font-weight="normal" fill="#52606d">j, age of head word</text>
+<rect x="645" y="150" width="60" height="40" rx="4" fill="#ffffff" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="675" y="175" font-family="Arial, Helvetica, sans-serif" font-size="11" text-anchor="middle" font-weight="bold" fill="#1f2933">AND</text>
+<path d="M 675 112 L 675 150" fill="none" stroke="#3e4c59" stroke-width="1.3" marker-end="url(#arrow)"/>
+<text x="683" y="135" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="start" font-weight="normal" fill="#52606d">weight</text>
+<path d="M 230 219 L 420 219 L 420 170 L 645 170" fill="none" stroke="#3e4c59" stroke-width="1.3" marker-end="url(#arrow)"/>
+<text x="430" y="162" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="start" font-weight="normal" fill="#52606d">PDM bit of the head word's channel</text>
+<circle cx="675" cy="290" r="20" fill="#ffffff" stroke="#3e4c59" stroke-width="1.3"/>
+<text x="675" y="297" font-family="Arial, Helvetica, sans-serif" font-size="20" text-anchor="middle" font-weight="bold" fill="#1f2933">+</text>
+<path d="M 675 190 L 675 270" fill="none" stroke="#3e4c59" stroke-width="1.3" marker-end="url(#arrow)"/>
+<rect x="250" y="270" width="46" height="40" rx="2" fill="#c9d6e8" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="273.0" y="295" font-family="Consolas, 'DejaVu Sans Mono', monospace" font-size="11" text-anchor="middle" font-weight="normal" fill="#1f2933">7</text>
+<rect x="296" y="270" width="46" height="40" rx="2" fill="#c9d6e8" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="319.0" y="295" font-family="Consolas, 'DejaVu Sans Mono', monospace" font-size="11" text-anchor="middle" font-weight="normal" fill="#1f2933">6</text>
+<rect x="342" y="270" width="46" height="40" rx="2" fill="#c9d6e8" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="365.0" y="295" font-family="Consolas, 'DejaVu Sans Mono', monospace" font-size="11" text-anchor="middle" font-weight="normal" fill="#1f2933">5</text>
+<rect x="388" y="270" width="46" height="40" rx="2" fill="#c9d6e8" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="411.0" y="295" font-family="Consolas, 'DejaVu Sans Mono', monospace" font-size="11" text-anchor="middle" font-weight="normal" fill="#1f2933">4</text>
+<rect x="434" y="270" width="46" height="40" rx="2" fill="#c9d6e8" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="457.0" y="295" font-family="Consolas, 'DejaVu Sans Mono', monospace" font-size="11" text-anchor="middle" font-weight="normal" fill="#1f2933">3</text>
+<rect x="480" y="270" width="46" height="40" rx="2" fill="#c9d6e8" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="503.0" y="295" font-family="Consolas, 'DejaVu Sans Mono', monospace" font-size="11" text-anchor="middle" font-weight="normal" fill="#1f2933">2</text>
+<rect x="526" y="270" width="46" height="40" rx="2" fill="#c9d6e8" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="549.0" y="295" font-family="Consolas, 'DejaVu Sans Mono', monospace" font-size="11" text-anchor="middle" font-weight="normal" fill="#1f2933">1</text>
+<rect x="572" y="270" width="46" height="40" rx="2" fill="#c9d6e8" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="595.0" y="295" font-family="Consolas, 'DejaVu Sans Mono', monospace" font-size="11" text-anchor="middle" font-weight="normal" fill="#1f2933">0</text>
+<text x="434" y="260" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">accumulator ring: 8 words x 20 bit, rotates one word per clock</text>
+<text x="616" y="326" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="end" font-weight="normal" fill="#52606d">head</text>
+<text x="252" y="326" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="start" font-weight="normal" fill="#52606d">tail</text>
+<path d="M 618 290 L 655 290" fill="none" stroke="#3e4c59" stroke-width="1.3" marker-end="url(#arrow)"/>
+<path d="M 695 290 L 740 290 L 740 400 L 160 400 L 160 300 L 190 300" fill="none" stroke="#3e4c59" stroke-width="1.3" marker-end="url(#arrow)"/>
+<rect x="190" y="275" width="40" height="50" rx="4" fill="#ffffff" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="210" y="296" font-family="Consolas, 'DejaVu Sans Mono', monospace" font-size="11" text-anchor="middle" font-weight="normal" fill="#1f2933">0</text>
+<text x="210" y="312" font-family="Consolas, 'DejaVu Sans Mono', monospace" font-size="9.5" text-anchor="middle" font-weight="normal" fill="#1f2933">sum</text>
+<path d="M 230 290 L 250 290" fill="none" stroke="#3e4c59" stroke-width="1.3" marker-end="url(#arrow)"/>
+<text x="176" y="345" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="start" font-weight="normal" fill="#52606d">0: clear after reset,</text>
+<text x="176" y="358" font-family="Arial, Helvetica, sans-serif" font-size="10" text-anchor="start" font-weight="normal" fill="#52606d">restart after output</text>
+<circle cx="740" cy="290" r="3" fill="#3e4c59"/>
+<path d="M 740 290 L 800 290" fill="none" stroke="#3e4c59" stroke-width="1.3" marker-end="url(#arrow)"/>
+<rect x="800" y="255" width="210" height="70" rx="4" fill="#cfe6da" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="905.0" y="273.2" font-family="Arial, Helvetica, sans-serif" font-size="12" text-anchor="middle" font-weight="bold" fill="#1f2933">output stage</text>
+<text x="905.0" y="287.2" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">age 3 at j = 31: S = sum</text>
+<text x="905.0" y="301.2" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">PCM = top 16 bits of 2S - 2^20</text>
+<text x="905.0" y="315.2" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">saturate S = 2^20 to +32767</text>
+<path d="M 905 325 L 905 400" fill="none" stroke="#3e4c59" stroke-width="1.3" marker-end="url(#arrow)"/>
+<rect x="800" y="400" width="210" height="50" rx="4" fill="#cfe6da" stroke="#3e4c59" stroke-width="1.2"/>
+<text x="905.0" y="422.2" font-family="Consolas, 'DejaVu Sans Mono', monospace" font-size="12" text-anchor="middle" font-weight="bold" fill="#1f2933">sig_out_left / sig_out_right</text>
+<text x="905.0" y="436.2" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">held until the next sample</text>
+<text x="520" y="430" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">words 0-3 belong to the left channel, 4-7 to the right; each channel's four words</text>
+<text x="520" y="446" font-family="Arial, Helvetica, sans-serif" font-size="10.5" text-anchor="middle" font-weight="normal" fill="#52606d">are partial outputs of different age (0..3 output periods old)</text>
+</svg>
