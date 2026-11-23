@@ -22,9 +22,9 @@
    - [3.2 CONTROL (0x00)](#32-control-0x00)
    - [3.3 NCO_CONTROL_LOW (0x01)](#33-nco_control_low-0x01)
    - [3.4 NCO_CONTROL_HIGH (0x02)](#34-nco_control_high-0x02)
-   - [3.5 DATA_RIGHT (0x03)](#35-data_right-0x03)
-   - [3.6 DATA_LEFT (0x04)](#36-data_left-0x04)
-   - [3.7 VERSION (0x05)](#37-version-0x05)
+   - [3.5 DATA_RIGHT (0x03–0x04)](#35-data_right-0x030x04)
+   - [3.6 DATA_LEFT (0x05–0x06)](#36-data_left-0x050x06)
+   - [3.7 VERSION (0x07)](#37-version-0x07)
 4. [How to Test](#4-how-to-test)
 5. [External Hardware](#5-external-hardware)
 6. [Functional Block Reference](#6-functional-block-reference)
@@ -53,8 +53,8 @@ The PDM-to-PCM Converter is a fully digital, stereo audio front-end designed for
 | CIC Filter Order ($N$) | 3 |
 | Decimation Ratio ($R$) | 32 |
 | Differential Delay ($M$) | 1 |
-| PCM Output Width | 8 bits (per channel) |
-| I²S Word Width | 16 bits (8-bit PCM, LSBs zero-padded) |
+| PCM Output Width | 16 bits signed (per channel) |
+| I²S Word Width | 16 bits (full 16-bit PCM sample) |
 | I²S Sample Rate | $f_{pdm} / (2 \cdot 32) \approx 0.0156 \cdot f_{pdm}$ |
 | Control Interface | SPI Mode 0, 8-bit frame |
 | Register Data Width | 8 bits |
@@ -147,12 +147,14 @@ The `pdm_sampler` module receives a single-bit PDM stream on `pdm_data`. Using t
 
 #### Stage 2 — CIC Decimation
 
-Two identical third-order ($N=3$) CIC decimation filters (`cic`) process the left and right channels independently. Each filter:
+A single third-order ($N=3$) CIC decimator (`cic_dual_folded`) processes both channels by time-multiplexing one shared 16-bit adder. The filter:
 
-- Accumulates 1-bit PDM samples (mapped to ±1) through three integrator stages.
-- Decimates by $R=32$: the comb stages fire once every 32 valid input samples.
-- Applies three comb stages with differential delay $M=1$.
-- Truncates the final output to 8 bits.
+- Accumulates 1-bit PDM samples (mapped to 0/1) through three integrator stages per channel.
+- Decimates by $R=32$: the comb stages run once every 32 PDM sample pairs.
+- Applies three comb stages per channel with differential delay $M=1$.
+- Keeps all state in 16 bits (exact under modulo-$2^{16}$ wrapping, since the CIC gain is $R^N = 32768$) and outputs full-scale signed 16-bit PCM, $2S - 32768$, saturated at +32767. The LSB is always 0 (~15 bits of effective resolution).
+- Needs 6 system clocks per PDM pair (12 on decimation pairs), so $f_{clk} / f_{pdm} \ge 13$ (PDM clock up to ~3.8 MHz at 50 MHz).
+- SPI registers `DATA_LEFT` / `DATA_RIGHT` return the full 16-bit sample as two bytes (low byte first; reading the low byte snapshots the high byte).
 
 The output sample rate per channel is:
 
@@ -164,7 +166,7 @@ For a typical PDM clock of 1.024 MHz, the PCM output rate is 16 kHz per channel.
 
 #### Stage 3 — I²S Master
 
-The `i2s` module receives 8-bit PCM data from both CIC filters and formats it into a standard I²S stereo stream with 16-bit word width. The 8-bit PCM samples are left-aligned within the 16-bit I²S word (bits [15:8] carry the PCM value; bits [7:0] are zero). The module generates `bclk` (equal to `pdm_clk`), `lrclk` (frame sync), and `sdata` (serial data) for direct connection to an external I²S device.
+The `i2s` module receives 16-bit PCM data for both channels and formats it into a standard I²S stereo stream with 16-bit word width (MSB first). The module generates `bclk` (equal to `pdm_clk`), `lrclk` (frame sync), and `sdata` (serial data) for direct connection to an external I²S device.
 
 #### Stage 4 — Output Pins
 
@@ -256,10 +258,11 @@ The maximum SCK frequency is limited by the 2-stage synchronizer chain on the SP
 | `0x00` | `CONTROL` | RW | 8 | `0x00` | Global enable and control |
 | `0x01` | `NCO_CONTROL_LOW` | RW | 8 | `0x00` | NCO step value, lower byte |
 | `0x02` | `NCO_CONTROL_HIGH` | RW | 8 | `0x00` | NCO step value, upper byte |
-| `0x03` | `DATA_RIGHT` | RO | 8 | `0x00` | Right-channel PCM sample |
-| `0x04` | `DATA_LEFT` | RO | 8 | `0x00` | Left-channel PCM sample |
-| `0x05` | `VERSION` | RO | 8 | `0xDA` | Hardware version identifier |
-| `0x06`–`0x07` | — | — | — | `0x00` | Reserved (returns `0x00`) |
+| `0x03` | `DATA_RIGHT_LOW` | RO | 8 | `0x00` | Right-channel PCM sample `[7:0]` (read first) |
+| `0x04` | `DATA_RIGHT_HIGH` | RO | 8 | `0x00` | Right-channel PCM sample `[15:8]` (snapshot) |
+| `0x05` | `DATA_LEFT_LOW` | RO | 8 | `0x00` | Left-channel PCM sample `[7:0]` (read first) |
+| `0x06` | `DATA_LEFT_HIGH` | RO | 8 | `0x00` | Left-channel PCM sample `[15:8]` (snapshot) |
+| `0x07` | `VERSION` | RO | 8 | `0xDA` | Hardware version identifier |
 
 > **Type Key:** RO = Read-Only, RW = Read-Write, WO = Write-Only
 
@@ -334,36 +337,39 @@ $$
 
 > ⚠️ **Caution:** Writing `step = 0` will freeze the PDM clock. The minimum practical step value is `1`, producing $f_{pdm} \approx 381.5$ Hz.
 
-### 3.5 DATA_RIGHT (`0x03`)
+### 3.5 DATA_RIGHT (`0x03`–`0x04`)
 
-**Address:** `0x03`
-**Type:** Read-Only (RO)
-**Reset Value:** `0x00`
+**Address:** `0x03` (low byte), `0x04` (high byte)
+**Type:** Read-Only (RO), 16-bit, read buffered
+**Reset Value:** `0x0000`
 
-| Bit(s) | Field Name | Access | Reset | Description |
-|--------|-----------|--------|-------|-------------|
-| `[7:0]` | `data_right` | RO | `0x00` | Most recent 8-bit PCM sample from the **right-channel** CIC decimation filter. Value is signed two's complement. Updated once every 64 PDM clock cycles (at $f_{pcm}$). |
+| Address | Bit(s) | Field Name | Access | Reset | Description |
+|---------|--------|-----------|--------|-------|-------------|
+| `0x03` | `[7:0]` | `low` | RO | `0x00` | PCM sample bits `[7:0]` (live value). Reading this byte also snapshots bits `[15:8]`. |
+| `0x04` | `[15:8]` | `high` | RO | `0x00` | PCM sample bits `[15:8]` as captured by the last read of `0x03`. |
+
+Most recent 16-bit PCM sample from the **right-channel** CIC decimator, updated once per PCM frame (every 32 PDM clock cycles).
 
 **Interpretation:**
-- Data is **signed 8-bit** (two's complement).
-- `0x00` = zero (silence).
-- `0x7F` = +127 (maximum positive amplitude).
-- `0x80` = −128 (maximum negative amplitude).
-- The value represents the decimated and filtered PDM density, proportional to the analog sound pressure level at the microphone.
+- Data is **signed 16-bit** (two's complement), full scale: `0x8000` = −32768, `0x0000` = silence, `0x7FFF` = +32767 (saturated full-scale positive). Bit 0 is always 0.
+- **Read order:** always read the low byte first, then the high byte. The snapshot guarantees both bytes come from the same sample even if a new sample arrives between the two SPI transactions (one SPI byte takes ~17 µs at 1 MHz, close to a 48 kHz sample period). Reading the high byte without a preceding low-byte read returns the previous snapshot (`0x00` after reset).
 
-### 3.6 DATA_LEFT (`0x04`)
+### 3.6 DATA_LEFT (`0x05`–`0x06`)
 
-**Address:** `0x04`
-**Type:** Read-Only (RO)
-**Reset Value:** `0x00`
+**Address:** `0x05` (low byte), `0x06` (high byte)
+**Type:** Read-Only (RO), 16-bit, read buffered
+**Reset Value:** `0x0000`
 
-| Bit(s) | Field Name | Access | Reset | Description |
-|--------|-----------|--------|-------|-------------|
-| `[7:0]` | `data_left` | RO | `0x00` | Most recent 8-bit PCM sample from the **left-channel** CIC decimation filter. Identical format to `DATA_RIGHT`. Updated once every 64 PDM clock cycles, offset from the right channel by one half PDM clock period. |
+| Address | Bit(s) | Field Name | Access | Reset | Description |
+|---------|--------|-----------|--------|-------|-------------|
+| `0x05` | `[7:0]` | `low` | RO | `0x00` | PCM sample bits `[7:0]` (live value). Reading this byte also snapshots bits `[15:8]`. |
+| `0x06` | `[15:8]` | `high` | RO | `0x00` | PCM sample bits `[15:8]` as captured by the last read of `0x05`. |
 
-### 3.7 VERSION (`0x05`)
+Most recent 16-bit PCM sample from the **left-channel** CIC decimator. Identical format and read rules to `DATA_RIGHT`.
 
-**Address:** `0x05`
+### 3.7 VERSION (`0x07`)
+
+**Address:** `0x07`
 **Type:** Read-Only (RO)
 **Reset Value:** `0xDA`
 
@@ -399,7 +405,7 @@ $$
 1. Apply 50 MHz clock to `clk`.
 2. Assert `rst_n = 0` for ≥16 clock cycles (320 ns).
 3. De-assert `rst_n = 1`.
-4. Read `VERSION` register (`SPI Read 0x05`) to verify communication. Expected response: `0xDA`.
+4. Read `VERSION` register (`SPI Read 0x07`) to verify communication. Expected response: `0xDA`.
 5. Configure PDM clock frequency by writing `NCO_CONTROL_LOW` and `NCO_CONTROL_HIGH`.
 6. Set `CONTROL.enable = 1`.
 7. Poll `DATA_LEFT` and `DATA_RIGHT` or capture I²S output.
@@ -426,8 +432,15 @@ def write_reg(addr, data):
     cmd = (addr & 0x07) | 0x10  # bit[4]=1 for write
     spi.xfer2([cmd, data])
 
+def read_pcm(addr_low):
+    """Read a 16-bit signed PCM register: low byte first (snapshots the high byte)."""
+    lo = read_reg(addr_low)
+    hi = read_reg(addr_low + 1)
+    v = (hi << 8) | lo
+    return v - 0x10000 if v & 0x8000 else v
+
 # Verify communication
-version = read_reg(0x05)
+version = read_reg(0x07)
 print(f"VERSION: 0x{version:02X}")  # Expected: 0xDA
 
 # Configure for 1.024 MHz PDM clock
@@ -439,8 +452,8 @@ write_reg(0x00, 0x01)  # CONTROL.enable = 1
 
 # Read PCM data
 while True:
-    right = read_reg(0x03)
-    left  = read_reg(0x04)
+    right = read_pcm(0x03)  # low byte 0x03, high byte 0x04
+    left  = read_pcm(0x05)  # low byte 0x05, high byte 0x06
     print(f"Left: {left:4d}  Right: {right:4d}")
 ```
 
