@@ -23,7 +23,7 @@ project:
     - "rtl/src/spi_to_regs_adapter.sv"
     - "rtl/src/spi.sv"
     - "rtl/src/i2s.sv"
-    - "rtl/src/cic.sv"
+    - "rtl/src/cic_dual_folded.sv"
     - "rtl/src/pdm_clk_gen.sv"
     - "rtl/src/pdm_sampler.sv"
     - "rtl/src/pdm_to_pcm_top.sv"
