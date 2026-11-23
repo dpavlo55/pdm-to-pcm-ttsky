@@ -1,24 +1,25 @@
 `default_nettype none
 `timescale 1ns / 1ps
 
-/* This testbench just instantiates the module and makes some convenient wires
-   that can be driven / tested by the cocotb test.py.
+/* Testbench wrapper for test.py: instantiates the design and gives every used
+   pin its own signal, so that the cocotb coroutines driving SPI and PDM never
+   have to share a bus.
 */
 module tb ();
 
-  // Dump the signals to a FST file. You can view it with gtkwave or surfer.
+  // Dump the pin-level signals to a FST file. You can view it with gtkwave or surfer.
+  // Only this module is dumped: the full hierarchy makes the file hundreds of MB.
   initial begin
     $dumpfile("tb.fst");
-    $dumpvars(0, tb);
+    $dumpvars(1, tb);
     #1;
   end
 
-  // Wire up the inputs and outputs:
   reg clk;
   reg rst_n;
   reg ena;
-  reg [7:0] ui_in;
   reg [7:0] uio_in;
+  wire [7:0] ui_in;
   wire [7:0] uo_out;
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
@@ -27,7 +28,21 @@ module tb ();
   wire VGND = 1'b0;
 `endif
 
-  // Replace tt_um_example with your module name:
+  // Inputs, driven by test.py
+  reg spi_sck;
+  reg spi_mosi;
+  reg spi_cs_n;
+  reg pdm_data;
+  assign ui_in = {4'b0000, pdm_data, spi_cs_n, spi_mosi, spi_sck};
+
+  // Outputs, observed by test.py
+  wire pdm_clk     = uo_out[0];
+  wire i2s_bclk    = uo_out[1];
+  wire i2s_lrclk   = uo_out[2];
+  wire i2s_sdata   = uo_out[3];
+  wire spi_miso    = uio_out[0];
+  wire spi_miso_oe = uio_oe[0];
+
   tt_um_top dut (
 
       // Include power ports for the Gate Level test:
