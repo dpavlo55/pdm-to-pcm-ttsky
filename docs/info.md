@@ -71,7 +71,7 @@ $f_{clk}$. The active-low reset `rst_n` clears all registers asynchronously; hol
 cycles. After reset the converter is disabled, PDM_CLK and I2S_BCLK are low, and the `id` register reads 0xDA.
 
 SPI_SCK, SPI_MOSI and SPI_CS_N each pass through a two-flip-flop synchronizer before use. PDM_DATA is sampled
-directly (see [PDM input](#pdm-input)).
+directly (see section *PDM input*).
 
 ### PDM clock generator
 
@@ -239,7 +239,7 @@ Writes to read-only registers are ignored.
 
 **`nco_control` (0x01–0x02)**
 
-The 16-bit NCO increment `step` that sets $f_{PDM}$ (see [PDM clock generator](#pdm-clock-generator)). Each byte
+The 16-bit NCO increment `step` that sets $f_{PDM}$ (see section *PDM clock generator*). Each byte
 takes effect as soon as it is written, so between the two writes the NCO runs with a mixed value. Change the
 frequency while the converter is disabled, or accept a short interval at the intermediate frequency.
 
@@ -282,7 +282,7 @@ the generated register model, and a check of every sample read over SPI, includi
 ### Limitations
 
 - SPI framing depends on counting SCK edges; SPI_CS_N does not resynchronize it (see
-  [SPI interface](#spi-interface)).
+  section *SPI interface*).
 - The two `nco_control` bytes are not written atomically.
 - The on-chip filter is a plain CIC; its passband droop is not compensated.
 - Disabling the converter stops PDM_CLK and I2S_BCLK at whatever level they have, which may be high.
@@ -292,8 +292,8 @@ the generated register model, and a check of every sample read over SPI, includi
 You need the 50 MHz project clock, an SPI master such as a Raspberry Pi or a microcontroller, and a PDM
 microphone. An I²S receiver or a logic analyzer is optional.
 
-1. Connect the microphone, the SPI master and, if available, an I²S receiver as shown under
-   [External hardware](#external-hardware).
+1. Connect the microphone, the SPI master and, if available, an I²S receiver as shown in
+   section *External hardware*.
 2. Reset the design, then read register 0x07. It must return 0xDA; anything else points to a wiring or SPI mode
    problem.
 3. Write 0xBB to 0x01 and 0x0F to 0x02 ($step$ = 4027: 1.536 MHz PDM clock, 48 kHz samples), then 0x01 to 0x00.
@@ -352,5 +352,5 @@ frame).
 | Part | Notes |
 |------|-------|
 | PDM MEMS microphone | Any digital microphone with clock input and PDM output. For stereo, connect two microphones to the same PDM_CLK and PDM_DATA and set their SELECT pins to opposite levels. Check that the microphone accepts the Tiny Tapeout I/O voltage and the chosen PDM clock. |
-| SPI master | Raspberry Pi, microcontroller or USB-SPI adapter; mode 0, 1 MHz recommended. Do not share SPI_SCK with other devices (see [SPI interface](#spi-interface)). |
+| SPI master | Raspberry Pi, microcontroller or USB-SPI adapter; mode 0, 1 MHz recommended. Do not share SPI_SCK with other devices (see section *SPI interface*). |
 | I²S receiver (optional) | DAC, audio codec or logic analyzer in I²S slave mode: BCLK, LRCLK (word select) and data in. |
